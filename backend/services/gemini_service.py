@@ -1,5 +1,7 @@
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 import os
+import time
 import requests
 from dotenv import load_dotenv
 import json
@@ -8,56 +10,115 @@ load_dotenv()
 
 class GeminiService:
     def __init__(self):
-        genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
-        self.model = genai.GenerativeModel('gemini-2.5-flash')
-        self.qwen_api_key = os.getenv('QWEN_API_KEY')
+        self.client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
+        self.openrouter_api_key = os.getenv('QWEN_API_KEY')  # OpenRouter API key
         self.openrouter_url = "https://openrouter.ai/api/v1/chat/completions"
-        self.qwen_model = "qwen/qwen-2.5-72b-instruct:free" # Use free tier
+        
+        # Tier 1: Primary Model (OpenRouter)
+        self.primary_model = "qwen/qwen-2.5-72b-instruct"
+        
+        # Tier 2: Gemini Models
+        self.gemini_models = [
+            'gemini-2.0-flash',
+            'gemini-2.0-flash-lite',
+        ]
+        
+        # Tier 3: Free-tier fallback models on OpenRouter
+        self.fallback_models = [
+            "meta-llama/llama-3.3-70b-instruct:free",
+            "google/gemma-3-27b-it:free",
+            "qwen/qwen3.6-plus-preview:free",
+            "qwen/qwen3-coder:free",
+            "nousresearch/hermes-3-llama-3.1-405b:free",
+        ]
 
-    def _call_qwen(self, prompt, max_tokens=1000):
-        """Fallback: call Qwen model via OpenRouter API."""
+    def _call_fallback(self, prompt, model_name, max_tokens=1000):
+        """Fallback: call LLM model via OpenRouter API."""
         headers = {
-            "Authorization": f"Bearer {self.qwen_api_key}",
+            "Authorization": f"Bearer {self.openrouter_api_key}",
             "Content-Type": "application/json",
         }
         payload = {
-            "model": self.qwen_model,
+            "model": model_name,
             "messages": [{"role": "user", "content": prompt}],
             "temperature": 0.7,
             "max_tokens": max_tokens
         }
-        try:
-            resp = requests.post(self.openrouter_url, headers=headers, json=payload, timeout=60)
-            if resp.status_code == 402:
-                print("[ERROR] OpenRouter Payment Required (402). Out of credits.")
-                raise Exception("AI secondary service out of credits (402)")
-            elif resp.status_code == 401:
-                print("[ERROR] OpenRouter Invalid API Key (401).")
-                raise Exception("AI secondary service authentication failed (401)")
-            resp.raise_for_status()
-            data = resp.json()
-            return data["choices"][0]["message"]["content"]
-        except Exception as e:
-            print(f"[RECOVERY] OpenRouter call failed: {e}")
-            raise e
+        resp = requests.post(self.openrouter_url, headers=headers, json=payload, timeout=60)
+        if resp.status_code == 402:
+            raise Exception(f"OpenRouter 402 Payment Required for {model_name}")
+        elif resp.status_code == 401:
+            raise Exception(f"OpenRouter 401 Invalid API Key for {model_name}")
+        resp.raise_for_status()
+        data = resp.json()
+        return data["choices"][0]["message"]["content"]
 
     def _generate_content(self, prompt, max_tokens=1500):
-        """Try Gemini first; on rate-limit fall back to Qwen via OpenRouter."""
+        """Try Primary model -> Gemini -> OpenRouter free models -> Pollinations"""
+        last_error = None
+
+        # Tier 1: Primary Model (Qwen 2.5 72B Instruct on OpenRouter)
+        if self.openrouter_api_key:
+            try:
+                print(f"[AI] Trying Primary model: {self.primary_model}")
+                return self._call_fallback(prompt, self.primary_model, max_tokens=max_tokens)
+            except Exception as e:
+                print(f"[RATE-LIMIT/ERROR] Primary {self.primary_model} failed, falling back... ({e})")
+                last_error = e
+
+        # Tier 2: Try each Gemini model
+        for model in self.gemini_models:
+            try:
+                print(f"[AI] Trying Gemini model: {model}")
+                response = self.client.models.generate_content(
+                    model=model,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(max_output_tokens=max_tokens)
+                )
+                return response.text
+            except Exception as e:
+                err_str = str(e).lower()
+                is_rate_limit = any(k in err_str for k in ["429", "resource exhausted", "rate limit", "quota"])
+                if is_rate_limit:
+                    print(f"[RATE-LIMIT] {model} exhausted, trying next...")
+                    last_error = e
+                    continue
+                else:
+                    raise e
+
+        # Tier 3: Try each OpenRouter free model
+        if self.openrouter_api_key:
+            for fallback in self.fallback_models:
+                try:
+                    print(f"[FALLBACK] Trying OpenRouter: {fallback}")
+                    return self._call_fallback(prompt, fallback, max_tokens=max_tokens)
+                except Exception as e:
+                    err_str = str(e).lower()
+                    is_rate_limit = any(k in err_str for k in ["429", "rate limit", "too many", "402"])
+                    if is_rate_limit:
+                        print(f"[RATE-LIMIT] {fallback} exhausted, trying next...")
+                        last_error = e
+                        time.sleep(1)  # Brief pause before next attempt
+                        continue
+                    else:
+                        print(f"[ERROR] {fallback} failed: {e}")
+                        last_error = e
+                        continue
+
+        # Tier 3: Free unauthenticated fallback
         try:
-            response = self.model.generate_content(
-                prompt,
-                generation_config=genai.types.GenerationConfig(max_output_tokens=max_tokens)
-            )
-            return response.text
-        except Exception as gemini_err:
-            err_str = str(gemini_err).lower()
-            is_rate_limit = any(k in err_str for k in ["429", "resource exhausted", "rate limit", "quota"])
-            if is_rate_limit and self.qwen_api_key:
-                print(f"[FALLBACK] Gemini rate-limited, switching to Qwen: {gemini_err}")
-                return self._call_qwen(prompt, max_tokens=max_tokens)
-            else:
-                raise gemini_err
-    
+            print("[FALLBACK] Trying Pollinations (Free Unauthenticated Tier)")
+            r = requests.post("https://text.pollinations.ai/", 
+                              json={"messages": [{"role": "user", "content": prompt}], "model": "openai"},
+                              timeout=60)
+            if r.status_code == 200 and r.text:
+                return r.text
+        except Exception as e:
+            print(f"[ERROR] Pollinations failed: {e}")
+
+        # All models exhausted
+        raise last_error or Exception("All AI services exhausted")
+
     def generate_explanation(self, question, context=None):
         try:
             prompt = f"""
@@ -66,8 +127,18 @@ You are an expert AI tutor with deep knowledge in computer science and general e
 Your task is to teach the concept clearly, accurately, and step-by-step.
 
 ⚠️ STRICT RULES:
-- Always provide factually correct information
-- Do NOT hallucinate or guess unknown facts
+- ONLY answer questions related to academics, education, science, technology, programming, history, mathematics, humanities, or other legitimate educational subjects.
+- If the user's question "{question}" is about non-educational topics (e.g., entertainment gossip, sports, politics, casual chit-chat, movies, or inappropriate subjects), you MUST politely refuse to answer. In this case, format your JSON exactly like this:
+  {{
+    "concept": "Non-educational query",
+    "explanation": "I apologize, but I am an AI tutor focused on educational and academic topics. I cannot answer queries about non-educational subjects like this. Please ask me a question related to your studies!",
+    "example": "",
+    "key_points": [],
+    "common_mistakes": [],
+    "practice_question": ""
+  }}
+- For valid educational questions, always provide factually correct information.
+- Do NOT hallucinate or guess unknown facts.
 - If unsure, say: "I am not fully certain, but here is the best explanation based on available knowledge"
 - Keep explanation beginner-friendly but technically correct
 
@@ -75,7 +146,7 @@ Your task is to teach the concept clearly, accurately, and step-by-step.
 
 ## RESPONSE STRUCTURE (MANDATORY JSON FORMAT)
 
-Return ONLY JSON in the following format:
+Return ONLY JSON in the following format for valid educational queries:
 
 {{
   "concept": "Short definition of the concept",
@@ -314,7 +385,8 @@ Generate a complete, accurate, and structured response following all rules above
             except json.JSONDecodeError:
                 return {"error": "Failed to generate concept map format. AI returned invalid structure."}
         except Exception as e:
-            return {"error": f"AI service unavailable: {{str(e)}}"}
+            return {"error": f"AI service unavailable: {str(e)}"}
+
     def chat_response(self, message, chat_history=None):
         try:
             context = ""
@@ -330,10 +402,12 @@ You are an expert AI tutor with deep knowledge in computer science and general e
 Your task is to teach the concept clearly, accurately, and step-by-step.
 
 ⚠️ STRICT RULES:
-- Always provide factually correct information
-- Do NOT hallucinate or guess unknown facts
-- If unsure, say: "I am not fully certain, but here is the best explanation based on available knowledge"
-- Keep explanation beginner-friendly but technically correct
+- ONLY respond to educational, academic, or learning-related queries.
+- If the user asks about non-educational topics (e.g., entertainment gossip, sports, movies, politics, or general non-academic chat), you MUST politely refuse to answer. Use a polite refusal like: "I apologize, but I am designed exclusively as an AI tutor for educational and academic topics. I cannot answer questions about non-educational subjects. Let me know how I can help you with your studies!"
+- For valid educational queries, provide factually correct information.
+- Do NOT hallucinate or guess unknown facts.
+- If unsure, say: "I am not fully certain, but here is the best explanation based on available knowledge".
+- Keep explanation beginner-friendly but technically correct.
 
 ---
 
