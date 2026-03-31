@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IntelliTutor AI | Your Personalized Learning Companion</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-secondary-fixed": "#001a42",
+              "secondary-container": "#0566d9",
+              "on-primary": "#1000a9",
+              "on-surface": "#dce1fb",
+              "primary-container": "#8083ff",
+              "background": "#0c1324",
+              "outline-variant": "#464554",
+              "on-primary-fixed-variant": "#2f2ebe",
+              "outline": "#908fa0",
+              "primary": "#c0c1ff",
+              "on-secondary-fixed-variant": "#004395",
+              "on-tertiary": "#003824",
+              "surface-container-low": "#151b2d",
+              "on-error": "#690005",
+              "tertiary-fixed-dim": "#4edea3",
+              "on-primary-container": "#0d0096",
+              "inverse-on-surface": "#2a3043",
+              "inverse-surface": "#dce1fb",
+              "on-tertiary-fixed-variant": "#005236",
+              "tertiary-fixed": "#6ffbbe",
+              "on-tertiary-container": "#000703",
+              "on-tertiary-fixed": "#002113",
+              "on-primary-fixed": "#07006c",
+              "tertiary-container": "#00885d",
+              "secondary-fixed": "#d8e2ff",
+              "secondary-fixed-dim": "#adc6ff",
+              "on-background": "#dce1fb",
+              "primary-fixed-dim": "#c0c1ff",
+              "primary-fixed": "#e1e0ff",
+              "surface-container-lowest": "#070d1f",
+              "tertiary": "#4edea3",
+              "surface-variant": "#2e3447",
+              "error": "#ffb4ab",
+              "surface-container": "#191f31",
+              "error-container": "#93000a",
+              "inverse-primary": "#494bd6",
+              "secondary": "#adc6ff",
+              "on-secondary": "#002e6a",
+              "surface-container-highest": "#2e3447",
+              "surface-tint": "#c0c1ff",
+              "on-surface-variant": "#c7c4d7",
+              "surface-bright": "#33394c",
+              "surface-container-high": "#23293c",
+              "on-error-container": "#ffdad6",
+              "surface": "#0c1324",
+              "surface-dim": "#0c1324",
+              "on-secondary-container": "#e6ecff"
+            },
+            fontFamily: {
+              "headline": ["Manrope", "sans-serif"],
+              "body": ["Inter", "sans-serif"],
+              "label": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        background-color: #0c1324;
+        color: #dce1fb;
+        font-family: 'Inter', sans-serif;
+      }
+      .signature-gradient {
+        background: linear-gradient(135deg, #c0c1ff 0%, #8083ff 100%);
+      }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- Shared TopAppBar -->
+<div class="relative flex h-auto w-full flex-col bg-surface overflow-x-hidden">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-outline-variant/15 px-6 md:px-20 py-4 lg:px-40">
+<div class="flex items-center gap-4 text-white">
+<div class="size-6 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M12.0799 24L4 19.2479L9.95537 8.75216L18.04 13.4961L18.0446 4H29.9554L29.96 13.4961L38.0446 8.75216L44 19.2479L35.92 24L44 28.7521L38.0446 39.2479L29.96 34.5039L29.9554 44H18.0446L18.04 34.5039L9.95537 39.2479L4 28.7521L12.0799 24Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-white text-xl font-headline font-bold leading-tight tracking-[-0.015em]">IntelliTutor AI</h2>
+</div>
+<div class="hidden md:flex flex-1 justify-end gap-8">
+<nav class="flex items-center gap-9">
+<a class="text-on-surface-variant text-sm font-medium hover:text-white transition-colors" href="#">Features</a>
+<a class="text-on-surface-variant text-sm font-medium hover:text-white transition-colors" href="#">How it Works</a>
+<a class="text-on-surface-variant text-sm font-medium hover:text-white transition-colors" href="#">Testimonials</a>
+<a class="text-on-surface-variant text-sm font-medium hover:text-white transition-colors" href="#">Pricing</a>
+</nav>
+<div class="flex gap-4">
+<button class="flex min-w-[100px] cursor-pointer items-center justify-center rounded-lg h-10 px-5 signature-gradient text-on-primary-fixed text-sm font-bold tracking-[0.015em]">
+                        Get Started
+                    </button>
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-10 px-5 bg-surface-container-highest text-white text-sm font-bold tracking-[0.015em] border border-outline-variant/20">
+                        Login
+                    </button>
+</div>
+</div>
+</header>
+<!-- Hero Section -->
+<main class="flex flex-col">
+<section class="px-6 md:px-20 lg:px-40 py-16 md:py-24 grid md:grid-cols-2 gap-12 items-center">
+<div class="flex flex-col gap-8">
+<div class="flex flex-col gap-4">
+<h1 class="text-white font-headline text-5xl lg:text-6xl font-extrabold leading-[1.1] tracking-tight">
+                            Your AI-Powered <span class="text-primary">Personalized</span> Learning Companion
+                        </h1>
+<p class="text-on-surface-variant text-lg lg:text-xl font-body leading-relaxed max-w-lg">
+                            Adaptive learning, spaced repetition, and intelligent tutoring — all in one sophisticated platform designed for the modern mind.
+                        </p>
+</div>
+<div class="flex flex-wrap gap-4">
+<button class="h-14 px-8 signature-gradient rounded-xl text-on-primary-fixed font-bold text-lg shadow-lg shadow-primary/10 hover:shadow-primary/20 transition-all">
+                            Get Started
+                        </button>
+<button class="h-14 px-8 bg-surface-container border border-outline-variant/30 rounded-xl text-white font-bold text-lg hover:bg-surface-container-high transition-all">
+                            Try Demo
+                        </button>
+</div>
+</div>
+<div class="relative group">
+<div class="absolute -inset-1 bg-gradient-to-r from-primary to-tertiary opacity-10 blur-2xl group-hover:opacity-20 transition duration-1000"></div>
+<div class="relative bg-surface-container-low border border-outline-variant/20 rounded-2xl overflow-hidden aspect-[4/3] shadow-2xl shadow-black/50">
+<div class="w-full h-full bg-cover bg-center opacity-80" data-alt="Sophisticated dark AI dashboard interface with charts and learning paths" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBBoBqTu85kaGN1MzMkXZohPhTpwx_b-yHebq0057en7Ru9-IE-Rk196ksBnQwpR_qgYUUK_fooXGbRKmMd6LpoltYFXt7Y3esswBsr-YGkYqGb00T-c3j42Xm08rCjPoCYwmKvkTQhByHcV42Z1lrhOpHGRNV1RFkyYAAiGWqmt0BBvDT62MSOsGL-1chuel5QpPWImQqyTlkaaNNVRxc-e6QkUt1uyhUThgnn2SfubNz-3uRMkt64xWlTBJGCW6PqPowD2kvJP2J_')"></div>
+<div class="absolute top-4 left-4 right-4 flex gap-2">
+<div class="w-3 h-3 rounded-full bg-error/40"></div>
+<div class="w-3 h-3 rounded-full bg-tertiary/40"></div>
+<div class="w-3 h-3 rounded-full bg-primary/40"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Trust / Stats Section -->
+<section class="bg-surface-container-lowest py-16 px-6 md:px-20 lg:px-40">
+<div class="flex flex-col md:flex-row justify-between items-center gap-12">
+<div class="flex flex-col gap-2">
+<h3 class="text-on-surface-variant font-label text-xs uppercase tracking-[0.2em]">Trusted by the Best</h3>
+<div class="flex gap-8 opacity-40 grayscale hover:grayscale-0 transition-all">
+<div class="h-8 w-24 bg-on-surface/20 rounded-md flex items-center justify-center text-[10px] font-bold">TECHCORP</div>
+<div class="h-8 w-24 bg-on-surface/20 rounded-md flex items-center justify-center text-[10px] font-bold">EDULABS</div>
+<div class="h-8 w-24 bg-on-surface/20 rounded-md flex items-center justify-center text-[10px] font-bold">INNOVATE</div>
+</div>
+</div>
+<div class="flex gap-16">
+<div class="flex flex-col gap-1">
+<span class="text-3xl font-headline font-extrabold text-tertiary">10x faster</span>
+<span class="text-on-surface-variant text-sm">Learning Speed</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-3xl font-headline font-extrabold text-primary">95%</span>
+<span class="text-on-surface-variant text-sm">Retention Rate</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Features Grid -->
+<section class="py-24 px-6 md:px-20 lg:px-40">
+<div class="flex flex-col gap-16">
+<div class="max-w-2xl">
+<span class="text-tertiary font-label text-xs uppercase tracking-[0.2em] mb-4 block">Capabilities</span>
+<h2 class="text-4xl font-headline font-bold text-white mb-6">Intelligence at every stage of learning.</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Feature 1 -->
+<div class="p-8 bg-surface-container-low border border-outline-variant/10 rounded-2xl hover:border-primary/30 transition-all group">
+<div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">psychology</span>
+</div>
+<h3 class="text-xl font-headline font-bold text-white mb-3">Adaptive Learning Engine</h3>
+<p class="text-on-surface-variant font-body text-sm leading-relaxed">Our AI analyzes your unique learning style and difficulty threshold to curate content in real-time.</p>
+</div>
+<!-- Feature 2 -->
+<div class="p-8 bg-surface-container-low border border-outline-variant/10 rounded-2xl hover:border-primary/30 transition-all group">
+<div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">target</span>
+</div>
+<h3 class="text-xl font-headline font-bold text-white mb-3">Weak Topic Detection</h3>
+<p class="text-on-surface-variant font-body text-sm leading-relaxed">Automatically identifies knowledge gaps and prioritizes those concepts in your daily curriculum.</p>
+</div>
+<!-- Feature 3 -->
+<div class="p-8 bg-surface-container-low border border-outline-variant/10 rounded-2xl hover:border-primary/30 transition-all group">
+<div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">chat_bubble</span>
+</div>
+<h3 class="text-xl font-headline font-bold text-white mb-3">AI Tutor Chat</h3>
+<p class="text-on-surface-variant font-body text-sm leading-relaxed">24/7 access to an intelligent tutor that explains complex topics using analogies you understand.</p>
+</div>
+<!-- Feature 4 -->
+<div class="p-8 bg-surface-container-low border border-outline-variant/10 rounded-2xl hover:border-primary/30 transition-all group">
+<div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">update</span>
+</div>
+<h3 class="text-xl font-headline font-bold text-white mb-3">Spaced Repetition</h3>
+<p class="text-on-surface-variant font-body text-sm leading-relaxed">Scientifically-timed reviews ensure that information moves from short-term to long-term memory.</p>
+</div>
+<!-- Feature 5 -->
+<div class="p-8 bg-surface-container-low border border-outline-variant/10 rounded-2xl hover:border-primary/30 transition-all group">
+<div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">bar_chart</span>
+</div>
+<h3 class="text-xl font-headline font-bold text-white mb-3">Analytics Dashboard</h3>
+<p class="text-on-surface-variant font-body text-sm leading-relaxed">Visual intelligence reporting that shows exactly how your proficiency grows day by day.</p>
+</div>
+<!-- Feature 6 -->
+<div class="p-8 bg-surface-container-low border border-outline-variant/10 rounded-2xl hover:border-primary/30 transition-all group">
+<div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">route</span>
+</div>
+<h3 class="text-xl font-headline font-bold text-white mb-3">Personalized Study Plans</h3>
+<p class="text-on-surface-variant font-body text-sm leading-relaxed">Dynamically generated roadmaps tailored to your specific academic or professional goals.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- How It Works -->
+<section class="py-24 px-6 md:px-20 lg:px-40 bg-surface-container-lowest">
+<div class="flex flex-col items-center text-center mb-16">
+<span class="text-tertiary font-label text-xs uppercase tracking-[0.2em] mb-4">The Process</span>
+<h2 class="text-4xl font-headline font-bold text-white">How it works</h2>
+</div>
+<div class="relative flex flex-col lg:flex-row justify-between items-start gap-12 lg:gap-4">
+<!-- Step 1 -->
+<div class="flex flex-col items-center text-center flex-1 group z-10">
+<div class="size-16 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-primary mb-6 group-hover:border-primary/50 transition-all relative">
+<span class="material-symbols-outlined text-3xl">edit_note</span>
+</div>
+<h4 class="text-lg font-headline font-bold text-white mb-2">Take quiz</h4>
+<p class="text-on-surface-variant text-sm max-w-[200px]">Initial assessment of your current knowledge base.</p>
+</div>
+<div class="hidden lg:block absolute top-8 left-[20%] right-[70%] h-px bg-outline-variant/20"></div>
+<!-- Step 2 -->
+<div class="flex flex-col items-center text-center flex-1 group z-10">
+<div class="size-16 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-primary mb-6 group-hover:border-primary/50 transition-all">
+<span class="material-symbols-outlined text-3xl">insights</span>
+</div>
+<h4 class="text-lg font-headline font-bold text-white mb-2">AI Analyzes</h4>
+<p class="text-on-surface-variant text-sm max-w-[200px]">Our engine maps your strengths and hidden weaknesses.</p>
+</div>
+<div class="hidden lg:block absolute top-8 left-[45%] right-[45%] h-px bg-outline-variant/20"></div>
+<!-- Step 3 -->
+<div class="flex flex-col items-center text-center flex-1 group z-10">
+<div class="size-16 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-primary mb-6 group-hover:border-primary/50 transition-all">
+<span class="material-symbols-outlined text-3xl">settings_suggest</span>
+</div>
+<h4 class="text-lg font-headline font-bold text-white mb-2">System Adapts</h4>
+<p class="text-on-surface-variant text-sm max-w-[200px]">Curriculum recalibrates to fill your gaps efficiently.</p>
+</div>
+<div class="hidden lg:block absolute top-8 left-[70%] right-[20%] h-px bg-outline-variant/20"></div>
+<!-- Step 4 -->
+<div class="flex flex-col items-center text-center flex-1 group z-10">
+<div class="size-16 rounded-full bg-surface-container border border-outline-variant/30 flex items-center justify-center text-primary mb-6 group-hover:border-primary/50 transition-all">
+<span class="material-symbols-outlined text-3xl">repeat</span>
+</div>
+<h4 class="text-lg font-headline font-bold text-white mb-2">Review</h4>
+<p class="text-on-surface-variant text-sm max-w-[200px]">Lock in knowledge with spaced repetition logic.</p>
+</div>
+</div>
+</section>
+<!-- Product Showcase -->
+<section class="py-24 px-6 md:px-20 lg:px-40 overflow-hidden">
+<div class="flex flex-col items-center text-center mb-16">
+<h2 class="text-4xl font-headline font-bold text-white mb-4">A Workspace for Growth</h2>
+<p class="text-on-surface-variant max-w-xl">Deep focus comes from a distraction-free interface. We built IntelliTutor to be as quiet as a library, as smart as a professor.</p>
+</div>
+<div class="relative max-w-6xl mx-auto">
+<div class="absolute -top-12 -left-12 size-64 bg-primary/10 blur-[100px] rounded-full"></div>
+<div class="absolute -bottom-12 -right-12 size-64 bg-tertiary/10 blur-[100px] rounded-full"></div>
+<div class="bg-surface-container-high border border-outline-variant/30 rounded-3xl p-4 shadow-3xl">
+<div class="aspect-video bg-cover bg-center rounded-2xl border border-outline-variant/20" data-alt="High-fidelity product mockup showing the AI learning dashboard and performance charts" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB80OEODQRBrT1vXxrEfFN11IH5dKMetJDUAnCBtPxx7pNuhyPKSx329zYJl-F-Z9j50D9dWbW1hcL-rc3DQgys25nuWd7uQ2qdBGbZTclQzbc4jyhJghzZ78rFq3G0P_obWlTdyfRJTqkEnTUBu9x_7alfvXiQSpBz6gjqmnqI94UepnEZkat5r00xECytssDJqQ6xf_PgESVr-6TVYt4XPSOemYIc_aVS2j4fOwbj2FxVg7cmmHWiygmvnnP-ZHrB-S-H3P3G0bNp')"></div>
+</div>
+</div>
+</section>
+<!-- Benefits -->
+<section class="py-24 px-6 md:px-20 lg:px-40 bg-surface">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="flex flex-col gap-6">
+<div class="text-tertiary">
+<span class="material-symbols-outlined text-4xl">bolt</span>
+</div>
+<h3 class="text-2xl font-headline font-bold text-white">Learn faster</h3>
+<p class="text-on-surface-variant">Cut out the noise. Our AI ensures you spend 100% of your time on material you haven't mastered yet.</p>
+</div>
+<div class="flex flex-col gap-6">
+<div class="text-primary">
+<span class="material-symbols-outlined text-4xl">center_focus_strong</span>
+</div>
+<h3 class="text-2xl font-headline font-bold text-white">Focus on weak areas</h3>
+<p class="text-on-surface-variant">No more skimming. We double down on the concepts you struggle with until they become second nature.</p>
+</div>
+<div class="flex flex-col gap-6">
+<div class="text-secondary">
+<span class="material-symbols-outlined text-4xl">memory</span>
+</div>
+<h3 class="text-2xl font-headline font-bold text-white">Retain knowledge longer</h3>
+<p class="text-on-surface-variant">Stop the forgetting curve. Our spaced repetition intervals are mathematically tuned to your memory cycle.</p>
+</div>
+</div>
+</section>
+<!-- Testimonials -->
+<section class="py-24 px-6 md:px-20 lg:px-40 bg-surface-container-lowest">
+<div class="grid md:grid-cols-2 gap-12">
+<div class="bg-surface-container-low p-10 rounded-2xl border border-outline-variant/10">
+<div class="flex gap-1 text-tertiary mb-6">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-lg text-white font-body italic mb-8 leading-relaxed">
+                            "IntelliTutor transformed how I prepare for my certifications. The AI chat felt like having a mentor in the room at 2 AM."
+                        </p>
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-full bg-primary/20 bg-cover bg-center" data-alt="User avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBEI7Ft31q-RoZahnImK7O80q4VDDHc7pkB7cQpmSWngXa704A3IGpANpeA0OCBrM8jJMXkSUiefsKsUlkAaEvqMbX61lmV8CrYvlLZLPKPQ7Y8nhWuYkIRd0ZYVzci2Geu-3hGz2eEPpbY6Y9-kyawri6d2zN5nUnp2lncqhKy27Az4aOHrFAVC16-OhTYO-wCS7avOdR3kWFiDt9eHcBeLfzVHYGJTDN6rayJXGni0egXNJH4tGdBwsx2eT8snTO3C8KAH8ghC4la')"></div>
+<div>
+<h5 class="text-white font-bold text-sm">Marcus Chen</h5>
+<p class="text-on-surface-variant text-xs">Senior Cloud Engineer</p>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low p-10 rounded-2xl border border-outline-variant/10">
+<div class="flex gap-1 text-tertiary mb-6">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-lg text-white font-body italic mb-8 leading-relaxed">
+                            "I used to spend hours making flashcards. Now, the system handles the schedule and the content. My grades have never been higher."
+                        </p>
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-full bg-secondary/20 bg-cover bg-center" data-alt="User avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA_TuSsMApFcEtfPlB0_6RxAOdgFaNR6FX3cQhs--C4VdyaDtGOLltYt-GRhkhcnCps9XRFgH5C2tYK3bppa9OGcdndmwdu8dRiwzK0bIcZ6Ghga1Q1ymuqnAfCVfoi_uufG2RCCes6RDxDf5TgKVJP-OwthX2FkTtMzkxQyFXkH9dYgj2AjyXtgBdD8-tLyRsx0tMfHngk4PM7dyRmQ7vIOdkJPRyQoaQiIjR9WMWTf1FHzu4Z-TsE8EaM2VY-JR6mOhndp1ajapfa')"></div>
+<div>
+<h5 class="text-white font-bold text-sm">Sarah Jenkins</h5>
+<p class="text-on-surface-variant text-xs">Medical Student</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Final CTA -->
+<section class="py-32 px-6 text-center bg-surface">
+<div class="max-w-3xl mx-auto">
+<h2 class="text-5xl md:text-6xl font-headline font-extrabold text-white mb-8 tracking-tight">
+                        Start your intelligent learning journey today.
+                    </h2>
+<p class="text-xl text-on-surface-variant mb-12 max-w-xl mx-auto">
+                        Join 50,000+ learners who are accelerating their knowledge with IntelliTutor AI.
+                    </p>
+<button class="h-16 px-12 signature-gradient rounded-xl text-on-primary-fixed font-bold text-xl shadow-2xl shadow-primary/30 hover:shadow-primary/50 transition-all hover:scale-105">
+                        Get Started Free
+                    </button>
+<p class="mt-8 text-on-surface-variant text-sm font-label uppercase tracking-widest">No credit card required</p>
+</div>
+</section>
+</main>
+<footer class="py-12 px-6 md:px-20 lg:px-40 border-t border-outline-variant/10 text-on-surface-variant flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="flex items-center gap-3">
+<div class="size-5 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M12.0799 24L4 19.2479L9.95537 8.75216L18.04 13.4961L18.0446 4H29.9554L29.96 13.4961L38.0446 8.75216L44 19.2479L35.92 24L44 28.7521L38.0446 39.2479L29.96 34.5039L29.9554 44H18.0446L18.04 34.5039L9.95537 39.2479L4 28.7521L12.0799 24Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<span class="text-white font-bold text-sm">IntelliTutor AI</span>
+</div>
+<div class="flex gap-8 text-xs font-medium uppercase tracking-widest">
+<a class="hover:text-white transition-colors" href="#">Privacy</a>
+<a class="hover:text-white transition-colors" href="#">Terms</a>
+<a class="hover:text-white transition-colors" href="#">Contact</a>
+</div>
+<p class="text-[10px] font-label text-on-surface-variant/50">© 2024 IntelliTutor AI Inc. Built for the future of learning.</p>
+</footer>
+</div>
+</body></html>
