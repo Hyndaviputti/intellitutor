@@ -475,7 +475,7 @@ const AdminDashboard = () => {
                                     <thead>
                                         <tr className="text-slate-500 text-[10px] uppercase tracking-[0.2em] font-black">
                                             <th className="px-6 pb-4">Identity</th>
-                                            <th className="px-6 pb-4">Status / Role</th>
+                                            {/* <th className="px-6 pb-4">Status / Role</th> */}
                                             <th className="px-6 pb-4">Enrollment Date</th>
                                             <th className="px-6 pb-4 text-right">Administrative Actions</th>
                                         </tr>
@@ -494,7 +494,7 @@ const AdminDashboard = () => {
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-5">
+                                                {/* <td className="px-6 py-5">
                                                     <select 
                                                         value={u.role}
                                                         onChange={(e) => handleUpdateRole(u.id, e.target.value)}
@@ -508,7 +508,7 @@ const AdminDashboard = () => {
                                                         <option value="admin" className="bg-slate-950 text-slate-200">System Admin</option>
                                                         <option value="teacher" className="bg-slate-950 text-slate-200">Instructor</option>
                                                     </select>
-                                                </td>
+                                                </td> */}
                                                 <td className="px-6 py-5 text-sm font-mono text-slate-500">
                                                     {u.created_at ? new Date(u.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '---'}
                                                 </td>

@@ -56,15 +56,19 @@ def start_session(session_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@collaborative_bp.route('/<session_id>/score', methods=['POST'])
+@collaborative_bp.route('/<session_id>/submit', methods=['POST'])
 @jwt_required()
-def update_score(session_id):
+def submit_answer(session_id):
     try:
         data = request.get_json()
         user_id = get_jwt_identity()
-        points = data.get('points', 0)
+        question_index = data.get('question_index')
+        answer_index = data.get('answer_index')
         
-        result = collab_service.update_score(user_id, session_id, points)
+        if question_index is None or answer_index is None:
+            return jsonify({'error': 'question_index and answer_index are required'}), 400
+            
+        result = collab_service.submit_answer(user_id, session_id, question_index, answer_index)
         if "error" in result:
              return jsonify(result), 400
         return jsonify(result), 200
@@ -78,18 +82,6 @@ def get_session_state(session_id):
         result = collab_service.get_session_state(session_id)
         if "error" in result:
              return jsonify(result), 404
-        return jsonify(result), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@collaborative_bp.route('/<session_id>/advance', methods=['POST'])
-@jwt_required()
-def advance_question(session_id):
-    try:
-        user_id = get_jwt_identity()
-        result = collab_service.advance_question(user_id, session_id)
-        if "error" in result:
-             return jsonify(result), 403
         return jsonify(result), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
