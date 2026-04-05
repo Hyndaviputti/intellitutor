@@ -63,7 +63,7 @@ class GeminiService:
                 print(f"[AI] Trying Primary model: {self.primary_model}")
                 return self._call_fallback(prompt, self.primary_model, max_tokens=max_tokens)
             except Exception as e:
-                print(f"[RATE-LIMIT/ERROR] Primary {self.primary_model} failed, falling back... ({e})")
+                print(f"[ERROR] Primary {self.primary_model} failed, falling back... ({e})")
                 last_error = e
 
         # Tier 2: Try each Gemini model
@@ -77,14 +77,9 @@ class GeminiService:
                 )
                 return response.text
             except Exception as e:
-                err_str = str(e).lower()
-                is_rate_limit = any(k in err_str for k in ["429", "resource exhausted", "rate limit", "quota"])
-                if is_rate_limit:
-                    print(f"[RATE-LIMIT] {model} exhausted, trying next...")
-                    last_error = e
-                    continue
-                else:
-                    raise e
+                print(f"[ERROR] Gemini {model} failed: {e}")
+                last_error = e
+                # Continue to next model or tier
 
         # Tier 3: Try each OpenRouter free model
         if self.openrouter_api_key:
@@ -93,19 +88,11 @@ class GeminiService:
                     print(f"[FALLBACK] Trying OpenRouter: {fallback}")
                     return self._call_fallback(prompt, fallback, max_tokens=max_tokens)
                 except Exception as e:
-                    err_str = str(e).lower()
-                    is_rate_limit = any(k in err_str for k in ["429", "rate limit", "too many", "402"])
-                    if is_rate_limit:
-                        print(f"[RATE-LIMIT] {fallback} exhausted, trying next...")
-                        last_error = e
-                        time.sleep(1)  # Brief pause before next attempt
-                        continue
-                    else:
-                        print(f"[ERROR] {fallback} failed: {e}")
-                        last_error = e
-                        continue
+                    print(f"[ERROR] OpenRouter fallback {fallback} failed: {e}")
+                    last_error = e
+                    continue
 
-        # Tier 3: Free unauthenticated fallback
+        # Tier 4: Free unauthenticated fallback
         try:
             print("[FALLBACK] Trying Pollinations (Free Unauthenticated Tier)")
             r = requests.post("https://text.pollinations.ai/", 
@@ -115,6 +102,7 @@ class GeminiService:
                 return r.text
         except Exception as e:
             print(f"[ERROR] Pollinations failed: {e}")
+            last_error = e
 
         # All models exhausted
         raise last_error or Exception("All AI services exhausted")
@@ -122,63 +110,42 @@ class GeminiService:
     def generate_explanation(self, question, context=None):
         try:
             prompt = f"""
-You are an expert AI tutor with deep knowledge in computer science and general education.
+STRICT SYSTEM GUARDRAIL: YOU ARE AN ACADEMIC AI TUTOR. 
+YOU ARE PROHIBITED FROM ANSWERING NON-EDUCATIONAL QUERIES.
 
-Your task is to teach the concept clearly, accurately, and step-by-step.
+1. EVALUATE THE TOPIC:
+   If the question "{question}" is about:
+   - Entertainment, Celebrities, Actors, Movies (e.g., Allu Arjun, Bollywood, Hollywood)
+   - Sports stars, Game scores, or Gossip
+   - Politics, Casual chat, or Inappropriate content
+   YOU MUST REFUSE TO ANSWER.
 
-⚠️ STRICT RULES:
-- ONLY answer questions related to academics, education, science, technology, programming, history, mathematics, humanities, or other legitimate educational subjects.
-- If the user's question "{question}" is about non-educational topics (e.g., entertainment gossip, sports, politics, casual chit-chat, movies, or inappropriate subjects), you MUST politely refuse to answer. In this case, format your JSON exactly like this:
-  {{
-    "concept": "Non-educational query",
-    "explanation": "I apologize, but I am an AI tutor focused on educational and academic topics. I cannot answer queries about non-educational subjects like this. Please ask me a question related to your studies!",
-    "example": "",
-    "key_points": [],
-    "common_mistakes": [],
-    "practice_question": ""
-  }}
-- For valid educational questions, always provide factually correct information.
-- Do NOT hallucinate or guess unknown facts.
-- If unsure, say: "I am not fully certain, but here is the best explanation based on available knowledge"
-- Keep explanation beginner-friendly but technically correct
+2. MANDATORY REFUSAL FORMAT (IF NON-EDUCATIONAL):
+   Return ONLY this JSON:
+   {{
+     "concept": "Non-educational query",
+     "explanation": "I apologize, but I am an AI tutor designed specifically for academic subjects like Science, Technology, Math, and History. I cannot provide information on entertainment, celebrities, or other non-academic topics. Please ask me something related to your studies!",
+     "example": "",
+     "key_points": [],
+     "common_mistakes": [],
+     "practice_question": ""
+   }}
 
----
-
-## RESPONSE STRUCTURE (MANDATORY JSON FORMAT)
-
-Return ONLY JSON in the following format for valid educational queries:
-
-{{
-  "concept": "Short definition of the concept",
-  "explanation": "Step-by-step explanation in simple language",
-  "example": "A clear real-world or code example",
-  "key_points": ["point1", "point2", "point3"],
-  "common_mistakes": ["mistake1", "mistake2"],
-  "practice_question": "One question to test understanding"
-}}
-
-⚠️ DO NOT return any text outside JSON
+3. IF EDUCATIONAL:
+   Provide an expert explanation for academics, education, science, technology, programming, history, math, or humanities.
+   Return ONLY JSON in this format:
+   {{
+     "concept": "Short definition",
+     "explanation": "Step-by-step explanation",
+     "example": "Clear example",
+     "key_points": ["point1", "point2", "point3"],
+     "common_mistakes": ["mistake1", "mistake2"],
+     "practice_question": "One test question"
+   }}
 
 ---
-
-## TEACHING STYLE:
-- Start from basics → then go deeper
-- Use simple language (like explaining to a beginner)
-- Use analogies if helpful
-- Keep explanation structured (no long paragraphs)
-
----
-
-## CONTEXT:
-{f'Additional context: {context}' if context else 'No additional context provided'}
-
-User question:
-{question}
-
----
-
-## FINAL INSTRUCTION:
-Generate a complete, accurate, and structured response following all rules above.
+CONTEXT: {f'Additional context: {context}' if context else 'No additional context provided'}
+User question: {question}
 """
             
             response = self._generate_content(prompt)
@@ -209,37 +176,37 @@ Generate a complete, accurate, and structured response following all rules above
     def generate_quiz(self, topic, difficulty, num_questions=5):
         try:
             prompt = f"""
-            You are an educational quiz generator for an AI tutoring platform. You MUST only generate quizzes for academic and educational topics.
-            
-            IMPORTANT GUARDRAIL: If the topic "{topic}" is NOT related to academics, education, science, technology, engineering, mathematics, humanities, social sciences, or any legitimate educational subject, return ONLY this JSON:
-            {{"error": "This topic is not educational. Please choose an academic subject."}}
-            
-            If the topic IS educational, generate exactly {num_questions} multiple choice questions about {topic} at {difficulty} difficulty level.
-            
-            CRITICAL: Return ONLY a JSON object with this exact structure:
-            {{
-                "questions": [
-                    {{
-                        "question": "Question text here",
-                        "options": ["Option A", "Option B", "Option C", "Option D"],
-                        "correct_answer": 0,
-                        "topic": "{topic}",
-                        "difficulty": "{difficulty}",
-                        "hint": "Brief 1-sentence hint.",
-                        "explanation": "Short 1-sentence explanation of the correct answer."
-                    }}
-                ]
-            }}
-            
-            Requirements:
-            - Questions must be clear and unambiguous
-            - Only one option is correct (correct_answer field must be the index: 0, 1, 2, or 3)
-            - Difficulty must match {difficulty} level
-            - Cover different aspects of {topic}
-            - Include topic field for each question
-            - The 'hint' and 'explanation' fields MUST be extremely brief to save tokens.
-            - Return valid JSON only, no additional text
-            """
+STRICT SYSTEM GUARDRAIL: YOU ARE AN ACADEMIC QUIZ GENERATOR.
+YOU ARE PROHIBITED FROM GENERATING QUIZZES ON NON-EDUCATIONAL TOPICS.
+
+1. EVALUATE THE TOPIC:
+   If the topic "{topic}" is about:
+   - Entertainment, Celebrities, Actors, Movies, or TV Shows (e.g., Allu Arjun, Hollywood)
+   - Sports stars, general gossip, or non-academic pop culture
+   - Politics, casual chat, or inappropriate content
+   YOU MUST REFUSE.
+
+2. MANDATORY REFUSAL FORMAT (IF NON-EDUCATIONAL):
+   Return ONLY this JSON:
+   {{"error": "This topic is not educational. I can only generate quizzes for academic subjects like Computer Science, Biology, or History."}}
+
+3. IF EDUCATIONAL:
+   Generate exactly {num_questions} multiple choice questions about {topic} at {difficulty} difficulty level.
+   Return ONLY a JSON object with this exact structure:
+   {{
+       "questions": [
+           {{
+               "question": "Question text here",
+               "options": ["Option A", "Option B", "Option C", "Option D"],
+               "correct_answer": 0,
+               "topic": "{topic}",
+               "difficulty": "{difficulty}",
+               "hint": "Brief hint.",
+               "explanation": "Brief explanation."
+           }}
+       ]
+   }}
+"""
             
             response = self._generate_content(prompt)
             try:
@@ -397,49 +364,28 @@ Generate a complete, accurate, and structured response following all rules above
                     context += f"Tutor: {msg.get('tutor', '')}\n"
             
             prompt = f"""
-You are an expert AI tutor with deep knowledge in computer science and general education.
+STRICT SYSTEM GUARDRAIL: YOU ARE AN ACADEMIC AI TUTOR. 
 
-Your task is to teach the concept clearly, accurately, and step-by-step.
+1. CORE LIMITATION:
+   You ONLY respond to educational, academic, or learning-related queries.
+   
+2. EXPLICIT REFUSAL RULES:
+   If the user asks about:
+   - Celebrities, Actors, Musicians, or Entertainment (e.g., "Who is Allu Arjun?", Movie plots, Song lyrics)
+   - Sports, Politics, or General Gossip
+   - Casual chit-chat or inappropriate content
+   
+   YOU MUST POLITELY REFUSE. Use this exact tone:
+   "I apologize, but I am designed exclusively as an AI tutor for educational and academic topics. I cannot answer questions about movies, celebrities, or non-educational subjects. How can I help you with your studies in Science, Math, or Programming today?"
 
-⚠️ STRICT RULES:
-- ONLY respond to educational, academic, or learning-related queries.
-- If the user asks about non-educational topics (e.g., entertainment gossip, sports, movies, politics, or general non-academic chat), you MUST politely refuse to answer. Use a polite refusal like: "I apologize, but I am designed exclusively as an AI tutor for educational and academic topics. I cannot answer questions about non-educational subjects. Let me know how I can help you with your studies!"
-- For valid educational queries, provide factually correct information.
-- Do NOT hallucinate or guess unknown facts.
-- If unsure, say: "I am not fully certain, but here is the best explanation based on available knowledge".
-- Keep explanation beginner-friendly but technically correct.
+3. CONTEXT & MESSAGE:
+   Context: {context}
+   User: {message}
 
----
-
-## TEACHING STYLE:
-- Start from basics → then go deeper
-- Use simple language (like explaining to a beginner)
-- Use analogies if helpful
-- Keep explanation structured (no long paragraphs)
-- Be conversational but educational
-
----
-
-## CONTEXT:
-{context}
-
-Current user message:
-{message}
-
----
-
-## RESPONSE GUIDELINES:
-1. Provide a direct, helpful answer to the user's question
-2. Explain the concept clearly with examples
-3. Encourage further learning
-4. Keep it appropriate for the user's level
-5. Be conversational and engaging
-6. If the user is asking for help with a specific problem, guide them through the solution step-by-step
-
----
-
-## FINAL INSTRUCTION:
-Generate a complete, accurate, and conversational educational response following all rules above.
+4. RESPONSE STYLE (FOR VALID QUERIES):
+   - Educational, conversational, and step-by-step.
+   - Use analogies and clear examples.
+   - Keep it structured and beginner-friendly.
 """
             
             response = self._generate_content(prompt)
